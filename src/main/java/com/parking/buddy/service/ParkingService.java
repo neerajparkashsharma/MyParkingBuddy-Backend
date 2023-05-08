@@ -7,7 +7,7 @@ import com.parking.buddy.repository.ParkingRepository;
 import com.parking.buddy.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.apache.commons.beanutils.BeanUtils;
+//import org.apache.commons.beanutils.BeanUtils;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Date;
 import java.util.List;
@@ -66,15 +66,30 @@ public class ParkingService {
     public Parking updateParking(Parking parking) {
         Parking parkingToUpdate = parkingRepo.findById(parking.getId()).orElse(null);
         if (parkingToUpdate != null) {
-            try {
-                BeanUtils.copyProperties(parkingToUpdate, parking);
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                e.printStackTrace();
-            }
+            parkingToUpdate.setCreateDate(parking.getCreateDate());
+            parkingToUpdate.setUpdatedDate(new Date());
+            parkingToUpdate.setCreatedBy(parking.getCreatedBy());
+            parkingToUpdate.setUpdatedBy(parking.getUpdatedBy());
+            parkingToUpdate.setIsActive(parking.getIsActive());
+            parkingToUpdate.setParkingLocation(parking.getParkingLocation());
+            parkingToUpdate.setParkingCharges(parking.getParkingCharges());
+            parkingToUpdate.setParkingImage(parking.getParkingImage());
+            parkingToUpdate.setIsBooked(parking.getIsBooked());
+            parkingToUpdate.setIsCancelled(parking.getIsCancelled());
+            parkingToUpdate.setIsAvailable(parking.getIsAvailable());
+            parkingToUpdate.setDescription(parking.getDescription());
+            parkingToUpdate.setLatitude(parking.getLatitude());
+            parkingToUpdate.setLongitude(parking.getLongitude());
+            parkingToUpdate.setCameraMacAddress(parking.getCameraMacAddress());
+            parkingToUpdate.setCameraIpAddress(parking.getCameraIpAddress());
+            parkingToUpdate.setCheckInCode(parking.getCheckInCode());
+            parkingToUpdate.setCheckOutCode(parking.getCheckOutCode());
+
             return parkingRepo.save(parkingToUpdate);
         }
         return null;
     }
+
 
     public void deleteParking(Long id) {
         Parking parking = parkingRepo.findById(id).orElse(null);

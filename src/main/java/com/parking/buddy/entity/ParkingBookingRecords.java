@@ -3,6 +3,7 @@ package com.parking.buddy.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.sql.Time;
 import java.util.Date;
 import java.util.List;
 
@@ -56,6 +57,16 @@ public class ParkingBookingRecords {
 
     @Column(name = "is_active")
     private Boolean isActive;
+
+    @Column(name = "from_time")
+    private Time fromTime;
+
+
+    @Column(name = "to_time")
+    private Time toTime;
+
+    @Column(name= "total_parking_charges")
+    private Float totalParkingCharges;
 
     public ParkingBookingRecords() {
     }
@@ -148,10 +159,23 @@ public class ParkingBookingRecords {
         isActive = active;
     }
 
-    public ParkingBookingRecords(long id, Parking parking, User customer, Date parkFromDate, Date parkToDate, Boolean isExpired, Date createdDate, Date updatedDate, Long createdBy, Long updatedBy, Boolean isActive) {
+    public List<BookingVehicles> getBookingVehicles() {
+        return bookingVehicles;
+    }
+
+    public Float getTotalParkingCharges() {
+        return totalParkingCharges;
+    }
+
+    public void setTotalParkingCharges(Float totalParkingCharges) {
+        this.totalParkingCharges = totalParkingCharges;
+    }
+
+    public ParkingBookingRecords(long id, Parking parking, User customer, List<BookingVehicles> bookingVehicles, Date parkFromDate, Date parkToDate, Boolean isExpired, Date createdDate, Date updatedDate, Long createdBy, Long updatedBy, Boolean isActive, Time fromTime, Time toTime, Float totalParkingCharges) {
         Id = id;
         this.parking = parking;
         this.customer = customer;
+        this.bookingVehicles = bookingVehicles;
         this.parkFromDate = parkFromDate;
         this.parkToDate = parkToDate;
         this.isExpired = isExpired;
@@ -160,5 +184,29 @@ public class ParkingBookingRecords {
         this.createdBy = createdBy;
         this.updatedBy = updatedBy;
         this.isActive = isActive;
+        this.fromTime = fromTime;
+        this.toTime = toTime;
+        this.totalParkingCharges = totalParkingCharges;
     }
+
+    public void setBookingVehicles(List<BookingVehicles> bookingVehicles) {
+        this.bookingVehicles = bookingVehicles;
+    }
+
+    public Time getFromTime() {
+        return fromTime;
+    }
+
+    public void setFromTime(Time fromTime) {
+        this.fromTime = fromTime;
+    }
+
+    public Time getToTime() {
+        return toTime;
+    }
+
+    public void setToTime(Time toTime) {
+        this.toTime = toTime;
+    }
+
 }

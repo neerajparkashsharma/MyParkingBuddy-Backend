@@ -61,19 +61,20 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 //		return filterRegistrationBean;
 //
 //	}
-    private static final String[] AUTH_WHITELIST = {
-            "/swagger-resources/**",
-            "/swagger-ui.html",
-            "/swagger-ui/index.html",
-            "/v2/api-docs",
-            "/webjars/**",
-            "/api/authenticate",
-    };
-
-    @Override
-    public void configure(WebSecurity web) throws Exception {
-        web.ignoring().antMatchers(AUTH_WHITELIST);
-    }
+//    private static final String[] AUTH_WHITELIST = {
+//            "/swagger-resources/**",
+//            "/swagger-ui.html",
+//            "/swagger-ui/index.html",
+//            "/v2/api-docs",
+//            "/webjars/**",
+//            "/api/authenticate",
+//
+//    };
+//
+//    @Override
+//    public void configure(WebSecurity web) throws Exception {
+//        web.ignoring().antMatchers(AUTH_WHITELIST);
+//    }
 
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
@@ -81,6 +82,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
                 .authorizeRequests()
                 .antMatchers("/api/authenticate", "/users", "/api/register", "/api/home", "/swagger-ui/index.html", "/parking").permitAll().
+                antMatchers("/v2/api-docs", "/configuration/**", "/swagger*/**", "/webjars/**").permitAll().
                 and().
                 exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
