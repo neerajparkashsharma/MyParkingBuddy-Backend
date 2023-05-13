@@ -6,9 +6,16 @@ import com.parking.buddy.entity.User;
 import com.parking.buddy.service.ParkingService;
 import com.parking.buddy.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 @RestController
@@ -70,6 +77,7 @@ public class ParkingController {
         return filteredParking;
     }
 
+
     // Helper method to calculate distance between two points
     public double distance(double lat1, double lon1, double lat2, double lon2) {
         double theta = lon1 - lon2;
@@ -97,4 +105,22 @@ public class ParkingController {
 
         return parkingService.getParkingByCameraMacAddress(macAddress);
     }
+
+
+
+
+
+//    @PostMapping("/detect-image")
+//    public ResponseEntity<?> detect(@RequestBody ImageRequest imageRequest) throws IOException {
+//
+//        // Decode the image data from base64
+//        byte[] imageBytes = Base64.getDecoder().decode(imageRequest.getImage());
+//
+//        // Encode the resulting image in JPEG format and return it as a byte array
+//        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//
+//        byte[] responseBytes = baos.toByteArray();
+//
+//        return new ResponseEntity<>(HttpStatus.OK);
+//    }
 }

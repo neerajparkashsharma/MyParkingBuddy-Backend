@@ -1,23 +1,49 @@
 package com.parking.buddy.controller;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import com.parking.buddy.entity.request.PaymentRequest;
+import com.parking.buddy.service.StripeService;
+import com.stripe.exception.StripeException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping(path = "/stripe/payment")
 public class StripePaymentController {
 
+    @Autowired
+    private StripeService stripeService;
 
 
+    @PostMapping("/add")
+    public ResponseEntity<?> addCard(
+            @RequestParam("cardNumber") String cardNumber,
+            @RequestParam("expMonth") String expMonth,
+            @RequestParam("expYear") String expYear,
+            @RequestParam("cvc") String cvc,
+            @RequestParam("email") String email) {
 
-//    @Value("${STRIPE_PUBLIC_KEY}")
-//    private String stripePublicKey;
+
+        return stripeService.addCard(cardNumber, expMonth, expYear, cvc, email);
+    }
+
+    @PostMapping("/charge")
+    public ResponseEntity<?> chargeCard(@RequestBody PaymentRequest request) {
+        try {
+            stripeService.charge(request);
+            return ResponseEntity.ok().body("Payment Successful");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
+    }
 
 
+    @PostMapping("/make-payment")
+    public ResponseEntity<?> makePayment(
+            @RequestParam String paymentMethodId,
+            @RequestParam int amount,
+            @RequestParam String customerId) {
 
-//    public Object index(@RequestBody Object request) {
-//
-//        Stripe.apiKey = stripePublicKey;
-//    }
-
+        return stripeService.makePayment(paymentMethodId, customerId, amount);
+    }
 }

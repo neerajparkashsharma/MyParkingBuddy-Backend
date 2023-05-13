@@ -1,16 +1,15 @@
 package com.parking.buddy.entity.DTO;
 
-public class parkingBookingDTO {
+public class ParkingBookingRequest
+{
 
-    public Long id;
     public Long parkingId;
     public Long customerId;
-    public String bookingDate;
+    public String bookingFromDate;
+    public String bookingToDate;
     public String bookingTime;
-
     public String bookingStartTime;
     public String bookingEndTime;
-
     public String bookingDuration;
 
 
