@@ -5,6 +5,7 @@ import com.parking.buddy.service.JWTUserDetailsService;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -68,7 +69,16 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 			}
 		}
 		chain.doFilter(request, response);
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		String loggedInUser = null;
+		if (auth != null) {
+			loggedInUser = auth.getName(); //get logged in username
 
+			System.out.println("Login successfull for user: " + loggedInUser);
+
+		} else {
+			System.out.println("Login failed for user: " + loggedInUser);
+		}
 	}
 
 }

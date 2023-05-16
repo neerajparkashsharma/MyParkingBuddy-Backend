@@ -1,19 +1,37 @@
 package com.parking.buddy.service;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
+import com.parking.buddy.entity.DTO.ParkingBookingRequest;
+import com.parking.buddy.entity.Parking;
 import com.parking.buddy.entity.ParkingBookingRecords;
 import com.parking.buddy.entity.User;
 import com.parking.buddy.repository.ParkingBookingRecordsRepository;
 import com.parking.buddy.repository.ParkingRepository;
+import com.parking.buddy.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.relational.core.sql.Between;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ParkingBookingRecordsService {
 
     @Autowired
+    private ParkingRepository parkingRepository;
+    @Autowired
     private ParkingBookingRecordsRepository parkingBookingRecordsRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     public List<ParkingBookingRecords> getAllParkingBookingRecords() {
         try {
@@ -70,5 +88,71 @@ public class ParkingBookingRecordsService {
             throw e;
         }
     }
+
+
+    public ResponseEntity<?> bookParking(ParkingBookingRequest booking) {
+        try {
+
+            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+            Date parkFromDate = dateFormat.parse(booking.getBookingFromDateTime());
+            Date parkToDate = dateFormat.parse(booking.getBookingToDateTime());
+
+
+            Optional<Parking> parking = parkingRepository.findById(booking.getParkingId());
+            if (!parking.isPresent()) {
+
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Parking spot not found");
+            }
+
+            List<ParkingBookingRecords> existingBookings = parkingBookingRecordsRepository.findByParking(parking.get());
+
+
+            for (ParkingBookingRecords bookingRecord : existingBookings) {
+                if (bookingRecord.getIsExpired() == null || !bookingRecord.getIsExpired()) {
+                    boolean condition1 = parkFromDate.after(bookingRecord.getParkFromDate()) && parkFromDate.before(bookingRecord.getParkToDate());
+                    boolean condition2 = parkToDate.after(bookingRecord.getParkFromDate()) && parkToDate.before(bookingRecord.getParkToDate());
+                    boolean condition3 = parkToDate.equals(bookingRecord.getParkToDate()) || parkFromDate.equals(bookingRecord.getParkFromDate());
+
+                    if (condition1 || condition2 || condition3){
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Parking spot already booked for the selected time slot");
+                    }
+                }
+            }
+
+
+
+        ParkingBookingRecords parkingBookingRecords = new ParkingBookingRecords();
+
+
+
+            Optional<User> customer = userRepository.findById(booking.getCustomerId());
+            if (!customer.isPresent()) {
+
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Customer not found");
+            }
+
+
+            parkingBookingRecords.setCustomer(customer.get());
+            parkingBookingRecords.setParking(parking.get());
+            parkingBookingRecords.setParkFromDate(parkFromDate);
+            parkingBookingRecords.setParkToDate(parkToDate);
+
+            parkingBookingRecords.setIsActive(true);
+            parkingBookingRecords.setIsExpired(false);
+            parkingBookingRecords.setCreatedDate(new Date());
+            parkingBookingRecords.setCreatedBy(customer.get().getId());
+
+            parkingBookingRecordsRepository.save(parkingBookingRecords);
+
+            return ResponseEntity.status(HttpStatus.OK).body("Parking Booked Successfully");
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+
 
 }

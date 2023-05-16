@@ -10,21 +10,16 @@ import java.util.List;
 public interface UserRepository extends JpaRepository<User, Long> {
     User findByEmailAddress(String email);
     User findByPhoneNumber(String phoneNumber);
-
     // save user
     User save(User user);
-
     // delete user by id
     void deleteById(long id);
     List<User> findByNameLike(String name);
     List<User> findByPhoneNumberNotLike(String phoneNumber);
-
     List<User> findByLocationDistanceGreaterThan(double distance);
     List<User> findByCreatedDateLessThanEqual(Date date);
-
     List<User> findByLocationDistanceBetween(double minDistance, double maxDistance);
     List<User> findByCreatedDateBetween(Date startDate, Date endDate);
-
     List<User> findByPhoneNumberIn(List<String> phoneNumbers);
     List<User> findByIsActiveIn(List<Boolean> isActiveList);
     List<User> findByIsActiveNot(boolean isActive);

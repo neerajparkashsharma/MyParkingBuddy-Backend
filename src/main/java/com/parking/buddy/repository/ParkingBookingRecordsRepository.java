@@ -14,6 +14,7 @@ public interface ParkingBookingRecordsRepository extends JpaRepository<ParkingBo
     List<ParkingBookingRecords> findAllByCustomer(User u);
     List<ParkingBookingRecords> findByCustomer(User customer);
 
+//    List<ParkingBookingRecords> findByParkingId(Long id);
     List<ParkingBookingRecords> findByParking(Parking parking);
     List<ParkingBookingRecords> findByIsActiveTrue();
     List<ParkingBookingRecords> findByCustomerAndIsActiveTrue(User customer);

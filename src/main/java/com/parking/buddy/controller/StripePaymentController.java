@@ -2,7 +2,6 @@ package com.parking.buddy.controller;
 
 import com.parking.buddy.entity.request.PaymentRequest;
 import com.parking.buddy.service.StripeService;
-import com.stripe.exception.StripeException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +13,6 @@ public class StripePaymentController {
     @Autowired
     private StripeService stripeService;
 
-
     @PostMapping("/add")
     public ResponseEntity<?> addCard(
             @RequestParam("cardNumber") String cardNumber,
@@ -22,8 +20,6 @@ public class StripePaymentController {
             @RequestParam("expYear") String expYear,
             @RequestParam("cvc") String cvc,
             @RequestParam("email") String email) {
-
-
         return stripeService.addCard(cardNumber, expMonth, expYear, cvc, email);
     }
 
