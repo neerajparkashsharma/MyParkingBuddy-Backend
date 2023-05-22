@@ -9,7 +9,6 @@ import com.parking.buddy.repository.ParkingRepository;
 import com.parking.buddy.repository.UserRepository;
 import com.parking.buddy.service.ParkingBookingRecordsService;
 import com.parking.buddy.service.UserService;
-//import jdk.vm.ci.meta.Local;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -143,6 +143,8 @@ public class ParkingBookingRecordsService {
             parkingBookingRecords.setCreatedDate(new Date());
             parkingBookingRecords.setCreatedBy(customer.get().getId());
 
+
+
             parkingBookingRecordsRepository.save(parkingBookingRecords);
 
             return ResponseEntity.status(HttpStatus.OK).body("Parking Booked Successfully");
