@@ -27,6 +27,22 @@ public class ImageService {
         return imageFiles;
     }
 
+    public List<File> getImageFilesInDirectory(String directoryPath) {
+        File directory = new File(directoryPath);
+        List<File> imageFiles = new ArrayList<>();
+
+        if (directory.exists() && directory.isDirectory()) {
+            File[] files = directory.listFiles();
+            for (File file : files) {
+                if (file.isFile() && file.getName().endsWith(".jpg") || file.getName().endsWith(".jpeg") || file.getName().endsWith(".png")) {
+                    imageFiles.add(file);
+                }
+            }
+        }
+
+        return imageFiles;
+    }
 
 
-}
+
+    }

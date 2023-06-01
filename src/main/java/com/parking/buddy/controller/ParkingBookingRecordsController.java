@@ -22,10 +22,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 public class ParkingBookingRecordsController {
@@ -55,7 +52,21 @@ public class ParkingBookingRecordsController {
     @GetMapping("/parkingBookingRecords/customer/{id}")
     private List<ParkingBookingRecords> getParkingBookingRecordsByCustomerId(@PathVariable Long id) {
         User u = userService.getUserById(id);
-        return u.getBookingRecords();
+        List<ParkingBookingRecords> bookingRecords = u.getBookingRecords();
+
+        // Sort the bookingRecords by createdOn in descending order
+        bookingRecords.sort((r1, r2) -> {
+            if (r1.getCreatedDate() == null && r2.getCreatedDate() == null) {
+                return 0;
+            } else if (r1.getCreatedDate() == null) {
+                return 1;
+            } else if (r2.getCreatedDate() == null) {
+                return -1;
+            }
+            return r2.getCreatedDate().compareTo(r1.getCreatedDate());
+        });
+
+        return bookingRecords;
     }
 
 

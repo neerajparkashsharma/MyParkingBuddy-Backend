@@ -7,6 +7,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import com.parking.buddy.entity.DTO.ParkingBookingRequest;
 import com.parking.buddy.entity.Parking;
@@ -98,14 +99,20 @@ public class ParkingBookingRecordsService {
             Date parkFromDate = dateFormat.parse(booking.getBookingFromDateTime());
             Date parkToDate = dateFormat.parse(booking.getBookingToDateTime());
 
+            long durationInMillis = parkToDate.getTime() - parkFromDate.getTime();
+            long hours = TimeUnit.MILLISECONDS.toHours(durationInMillis);
+
 
             Optional<Parking> parking = parkingRepository.findById(booking.getParkingId());
+
+
             if (!parking.isPresent()) {
 
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Parking spot not found");
             }
 
             List<ParkingBookingRecords> existingBookings = parkingBookingRecordsRepository.findByParking(parking.get());
+
 
 
             for (ParkingBookingRecords bookingRecord : existingBookings) {
@@ -132,16 +139,18 @@ public class ParkingBookingRecordsService {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Customer not found");
             }
 
+           float price=  parking.get().getParkingCharges();
 
             parkingBookingRecords.setCustomer(customer.get());
             parkingBookingRecords.setParking(parking.get());
             parkingBookingRecords.setParkFromDate(parkFromDate);
             parkingBookingRecords.setParkToDate(parkToDate);
-
+            parkingBookingRecords.setTotalParkingCharges(price*hours);
             parkingBookingRecords.setIsActive(true);
-            parkingBookingRecords.setIsExpired(false);
             parkingBookingRecords.setCreatedDate(new Date());
             parkingBookingRecords.setCreatedBy(customer.get().getId());
+
+
 
 
 

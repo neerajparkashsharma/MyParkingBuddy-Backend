@@ -1,7 +1,8 @@
 package com.parking.buddy.service;
 
 import com.parking.buddy.entity.request.PaymentRequest;
-import com.parking.buddy.exception.InvalidRequestException;import com.stripe.Stripe;
+import com.parking.buddy.exception.InvalidRequestException;
+import com.stripe.Stripe;
 import com.stripe.exception.CardException;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Charge;
@@ -16,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import javax.naming.AuthenticationException;
-//import javax.smartcardio.CardException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,13 +25,10 @@ public class StripeService {
 
     @Value("${STRIPE_PUBLIC_KEY}")
     private String secretKey;
-
-
     @PostConstruct
     public void init() {
         Stripe.apiKey = secretKey;
     }
-
     public ResponseEntity<?> addCard(String cardNumber, String expMonth, String expYear, String cvc, String email) {
         Stripe.apiKey = secretKey;
         Map<String, Object> cardParams = new HashMap<>();
@@ -59,8 +56,6 @@ public class StripeService {
         }
     }
 
-
-
     public ResponseEntity<?> makePayment(String paymentMethodId,String customerId, long amount) {
         Stripe.apiKey = secretKey;
         try {
@@ -79,7 +74,6 @@ public class StripeService {
             return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         }
     }
-
 
     public Charge charge(PaymentRequest request) throws AuthenticationException, InvalidRequestException, CardException, StripeException {
 

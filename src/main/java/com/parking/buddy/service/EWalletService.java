@@ -8,6 +8,7 @@ import com.parking.buddy.repository.EWalletRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -16,6 +17,9 @@ public class EWalletService {
     private EWalletRepository eWalletRepository;
 
     public EWallet createWallet(EWallet eWallet) {
+        eWallet.setCreatedOn(new Date());
+        eWallet.setIsActive(true);
+
         return eWalletRepository.save(eWallet);
     }
 

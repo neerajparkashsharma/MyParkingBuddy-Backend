@@ -4,8 +4,10 @@ package com.parking.buddy.service;
 import com.parking.buddy.entity.User;
 import com.parking.buddy.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -51,10 +53,21 @@ public class JWTUserDetailsService implements UserDetailsService {
             newUser.setRole(user.getRole());
             newUser.setCreatedDate(new Date());
             newUser.setPassword(bcryptEncoder.encode(user.getPassword()));
-            newUser.setCreatedBy(Long.parseLong("0"));
+
+
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+            if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
+                UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+                newUser.setCreatedBy( userRepo.findByEmailAddress( userDetails.getUsername()).getId());
+            } else {
+                newUser.setCreatedBy(0L);
+            }
+
             newUser.setUpdatedBy(user.getUpdatedBy());
             newUser.setUpdatedDate(user.getUpdatedDate());
             newUser.setActive(true);
+
             return userRepo.save(newUser);
         } catch (Exception e) {
             throw new RuntimeException("Failed to save user: " + e.getMessage());

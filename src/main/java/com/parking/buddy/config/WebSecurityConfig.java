@@ -76,6 +76,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 //        web.ignoring().antMatchers(AUTH_WHITELIST);
 //    }
 
+
+
+
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.csrf().disable().cors().disable()

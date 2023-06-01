@@ -13,10 +13,4 @@ public class ParkingBookingRequest
 
 
 
-
-//    public String bookingTime;
-//    public String bookingStartTime;
-//    public String bookingDurationInHours;
-
-
 }

@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.ws.rs.core.Response;
 import java.util.*;
 
 @RestController
@@ -25,7 +26,6 @@ public class UserController {
     @PostMapping("/update/location/{location}/{id}")
     public ResponseEntity<?> saveLocationRadius(@PathVariable String location, @PathVariable String id) {
         try {
-            System.out.println("inside");
             User u = userService.getUserById(Long.parseLong(id));
             u.setLocationDistance(Double.parseDouble(location));
             userService.saveUser(u);
@@ -35,6 +35,13 @@ public class UserController {
             return ResponseEntity.badRequest().body(e.toString());
         }
     }
+
+
+    @PutMapping("/users")
+    public ResponseEntity<?> updateUserInfo(@RequestBody  User user){
+        return  userService.updateUser(user);
+    }
+
 
 
     @GetMapping("/users/{email}")

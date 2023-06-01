@@ -1,19 +1,30 @@
 package com.parking.buddy.controller;
 
 import com.parking.buddy.entity.EWallet;
+import com.parking.buddy.entity.User;
+import com.parking.buddy.repository.UserRepository;
 import com.parking.buddy.service.EWalletService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
 import  java.util.List;
+import java.util.Optional;
 
 @RestController
 public class EWalletController {
     @Autowired
     private EWalletService eWalletService;
-    @PostMapping("/wallet")
-    public EWallet createEWallet(EWallet eWallet){
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @PostMapping("/wallet/{userId}")
+    public EWallet createEWallet(@RequestBody  EWallet eWallet, @PathVariable Long userId){
+
+       Optional<User> u= userRepository.findById(userId);
+
+        u.ifPresent(eWallet::setUser);
+
         return eWalletService.createWallet(eWallet);
     }
     @GetMapping("/wallet")

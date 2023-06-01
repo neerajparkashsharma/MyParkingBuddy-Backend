@@ -24,7 +24,7 @@ public class ParkingBookingRecords {
 
     @ManyToOne
     @JoinColumn(name = "parking_id")
-    @JsonIgnore
+//    @JsonIgnore
     private Parking parking;
 
 
