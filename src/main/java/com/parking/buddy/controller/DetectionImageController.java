@@ -35,16 +35,16 @@ public class DetectionImageController {
     public String saveImage(@RequestBody DetectionImages request) {
         String imageData = request.getImage();
         try {
-            // Replace URL-safe characters
+
             String base64String = imageData.replace('-', '+').replace('_', '/');
 
-            // Decode the Base64 image data
+
             byte[] imageBytes = Base64.getDecoder().decode(base64String);
 
-            // Compress the image
+
             byte[] compressedImageBytes = compressImage(imageBytes);
 
-            // Encode the compressed image back into Base64 format
+
             String compressedImage = Base64.getEncoder().encodeToString(compressedImageBytes);
             request.setImage(compressedImage);
 
