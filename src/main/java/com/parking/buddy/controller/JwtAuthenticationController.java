@@ -30,7 +30,7 @@ import java.util.Date;
 @CrossOrigin
 @RequestMapping("/api")
 public class JwtAuthenticationController {
-    private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationController.class);
+    private static final Logger LOGGER= LoggerFactory.getLogger(JwtAuthenticationController.class);
 //    private final SessionRepository<?> sessionRepository;
 //    private final SpringSessionBackedSessionRegistry<?> sessionRegistry;
     @Autowired
@@ -58,7 +58,6 @@ public class JwtAuthenticationController {
 
             session.setAttribute("username", userDetails.getUsername());
             session.setAttribute("userId", userService.getUserByEmail(userDetails.getUsername()).getId());
-
 
 
             final String token = jwtTokenUtil.generateToken(userDetails);
@@ -102,9 +101,12 @@ public class JwtAuthenticationController {
 
 
 
-
-            // Return a successful response
-            return ResponseEntity.ok("Authentication successful");
+            return ResponseEntity.ok(new JwtResponse(
+                    token,
+                    userDetails.getUsername(),
+                    userService.getUserByEmail(userDetails.getUsername()).getId(),
+                    userService.getUserByEmail(userDetails.getUsername()).getRole()
+            ));
         } else {
             // Return an unauthorized response
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");

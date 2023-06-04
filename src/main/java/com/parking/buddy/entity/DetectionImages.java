@@ -37,4 +37,7 @@ public class DetectionImages {
     @Column(name = "user_id")
     private Long userId;
 
+    @Column(name = "parking_id")
+    private Long parkingId;
+
 }

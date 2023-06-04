@@ -1,8 +1,10 @@
 package com.parking.buddy.controller;
 
 import com.parking.buddy.entity.BookingVehicles;
+import com.parking.buddy.entity.request.ParkingCheckInRequest;
 import com.parking.buddy.service.BookingVehiclesService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import  java.util.List;
@@ -22,5 +24,10 @@ public class BookingVehiclesController {
     @PostMapping("/bookingVehicles")
     private BookingVehicles saveBookingVehicles(@RequestBody BookingVehicles bookingVehicles){
         return bookingVehiclesService.saveBookingVehicles(bookingVehicles);
+    }
+
+    @PostMapping("/booking/checkin")
+    public ResponseEntity<?> checkIn(@RequestBody ParkingCheckInRequest parkingCheckInRequest) {
+        return bookingVehiclesService.markCheckIn(parkingCheckInRequest);
     }
 }

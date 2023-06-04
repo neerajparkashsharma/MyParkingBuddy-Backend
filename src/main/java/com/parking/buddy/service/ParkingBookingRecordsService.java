@@ -97,7 +97,9 @@ public class ParkingBookingRecordsService {
             DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
             Date parkFromDate = dateFormat.parse(booking.getBookingFromDateTime());
-            Date parkToDate = dateFormat.parse(booking.getBookingToDateTime());
+            Date parkToDate = dateFormat.parse(booking.getBookingFromDateTime());
+            if(!booking.getBookingToDateTime().equals("Invalid date"))
+                parkToDate = dateFormat.parse(booking.getBookingToDateTime());
 
             long durationInMillis = parkToDate.getTime() - parkFromDate.getTime();
             long hours = TimeUnit.MILLISECONDS.toHours(durationInMillis);
@@ -164,6 +166,36 @@ public class ParkingBookingRecordsService {
     }
 
 
+    public ResponseEntity<?> getBookingsByParkingId(Long id) {
+        try {
+
+            Optional<Parking> parking = parkingRepository.findById(id);
+
+            if (!parking.isPresent()) {
+
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Parking spot not found");
+            }
+
+            List<ParkingBookingRecords> existingBookings = parkingBookingRecordsRepository.findByParking(parking.get());
 
 
+
+            // Sort the bookingRecords by createdOn in descending order
+                existingBookings.sort((r1, r2) -> {
+                if (r1.getCreatedDate() == null && r2.getCreatedDate() == null) {
+                    return 0;
+                } else if (r1.getCreatedDate() == null) {
+                    return 1;
+                } else if (r2.getCreatedDate() == null) {
+                    return -1;
+                }
+                return r2.getCreatedDate().compareTo(r1.getCreatedDate());
+            });
+            return ResponseEntity.status(HttpStatus.OK).body(existingBookings);
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+
+        }
+    }
 }

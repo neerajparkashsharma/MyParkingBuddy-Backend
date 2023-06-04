@@ -45,10 +45,12 @@ public class ParkingBookingRecordsController {
     private List<ParkingBookingRecords> getAllParkingBookingRecords() {
         return parkingBookingRecordsService.getAllParkingBookingRecords();
     }
+
     @GetMapping("/parkingBookingRecords/{id}")
     private ParkingBookingRecords getParkingBookingRecordsById(@PathVariable long id) {
         return parkingBookingRecordsService.getParkingBookingRecordsById(id);
     }
+
     @GetMapping("/parkingBookingRecords/customer/{id}")
     private List<ParkingBookingRecords> getParkingBookingRecordsByCustomerId(@PathVariable Long id) {
         User u = userService.getUserById(id);
@@ -68,7 +70,6 @@ public class ParkingBookingRecordsController {
 
         return bookingRecords;
     }
-
 
 
 //    @PostMapping("/parkingbooking/")
@@ -142,21 +143,14 @@ public class ParkingBookingRecordsController {
 
     @PostMapping("/book-parking")
     public ResponseEntity<?> bookParking(@RequestBody ParkingBookingRequest booking) {
-            return parkingBookingRecordsService.bookParking(booking);
+        return parkingBookingRecordsService.bookParking(booking);
     }
-
-
-
-
 
 
     @PostMapping("/parkingBookingRecords")
     private String saveParkingBookingRecords(@RequestBody parkingBookingDTO p) {
 
         try {
-
-
-
 
 //             Optional<User> customer = userRepository.findById(p.customerId);
 //             Parking parking = parkingRepository.findById(p.parkingId).orElse(null);
@@ -208,10 +202,8 @@ public class ParkingBookingRecordsController {
 ////                return "Parking is not available";
 ////            }
 
-
-            return  "Success";
-        } catch (Exception e)
-        {
+            return "Success";
+        } catch (Exception e) {
             return "Failed";
         }
     }
@@ -227,6 +219,15 @@ public class ParkingBookingRecordsController {
     @DeleteMapping("/parkingBookingRecords/{id}")
     private void deleteParkingBookingRecords(@PathVariable long id) {
         parkingBookingRecordsService.deleteParkingBookingRecords(id);
+    }
+
+    @GetMapping("/parking/bookings/{id}")
+    public ResponseEntity<?> getBookingsByParkingId(@PathVariable Long id) {
+
+
+
+
+        return parkingBookingRecordsService.getBookingsByParkingId(id);
     }
 
 
