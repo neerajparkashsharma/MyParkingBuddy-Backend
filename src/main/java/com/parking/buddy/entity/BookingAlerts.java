@@ -1,10 +1,14 @@
 package com.parking.buddy.entity;
 
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
 import java.util.Date;
 
 @Entity
+@Table(name="Booking_alerts")
 
 public class BookingAlerts {
 

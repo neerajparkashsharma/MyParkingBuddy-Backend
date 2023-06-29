@@ -14,22 +14,22 @@ import  java.util.List;
 @RestController
 public class BookingVehiclesController {
     @Autowired
-    private BookingVehiclesService bookingVehiclesService;
+    public BookingVehiclesService bookingVehiclesService;
     @GetMapping("/bookingVehicles")
-    private  List<BookingVehicles> getAllBookingVehicles(){
+    public  List<BookingVehicles> getAllBookingVehicles(){
         return bookingVehiclesService.getAllBookingVehicles();
     }
     @GetMapping("/bookingVehicles/{id}")
-    private BookingVehicles getBookingVehiclesById( @PathVariable Long id){
+    public BookingVehicles getBookingVehiclesById( @PathVariable Long id){
         return bookingVehiclesService.getBookingVehiclesById(id);
     }
     @PostMapping("/bookingVehicles")
-    private BookingVehicles saveBookingVehicles(@RequestBody BookingVehicles bookingVehicles){
+    public BookingVehicles saveBookingVehicles(@RequestBody BookingVehicles bookingVehicles){
         return bookingVehiclesService.saveBookingVehicles(bookingVehicles);
     }
 
     @PostMapping("/booking/checkin")
-    public ResponseEntity<?> checkIn(@RequestBody ParkingCheckInRequest parkingCheckInRequest) throws IOException {
+    public ResponseEntity<?> checkIn(@RequestBody ParkingCheckInRequest parkingCheckInRequest)   {
         return bookingVehiclesService.markCheckIn(parkingCheckInRequest);
     }
     @PostMapping("/booking/checkout")
@@ -38,7 +38,7 @@ public class BookingVehiclesController {
     }
 
     @GetMapping("/bookingVehicles/all/{bookingid}")
-    private List<BookingVehicles> getBookingVehiclesByBookingId(@PathVariable Long bookingid){
+    public List<BookingVehicles> getBookingVehiclesByBookingId(@PathVariable Long bookingid){
         return bookingVehiclesService.getAllBookingVehicles(bookingid);
     }
 }

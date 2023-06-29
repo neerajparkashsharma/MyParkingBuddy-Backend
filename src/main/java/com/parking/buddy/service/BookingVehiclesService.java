@@ -1,33 +1,26 @@
 package com.parking.buddy.service;
 
+import com.parking.buddy.entity.BookingDates;
 import com.parking.buddy.entity.BookingVehicles;
-import com.parking.buddy.entity.DetectionImages;
 import com.parking.buddy.entity.Parking;
 import com.parking.buddy.entity.ParkingBookingRecords;
 import com.parking.buddy.entity.request.ParkingCheckInRequest;
 import com.parking.buddy.entity.request.ParkingCheckOutRequest;
 import com.parking.buddy.exception.ResourceAlreadyExistsException;
 import com.parking.buddy.exception.ResourceNotFoundException;
+import com.parking.buddy.repository.BookingDatesRespository;
 import com.parking.buddy.repository.BookingVehiclesRepository;
 import com.parking.buddy.repository.ParkingBookingRecordsRepository;
 import com.parking.buddy.repository.ParkingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -40,10 +33,11 @@ public class BookingVehiclesService {
     @Autowired
     private ParkingRepository parkingRepository;
 
+    @Autowired
+    private BookingDatesRespository bookingDatesRespository;
 
     @Autowired
     private ParkingBookingRecordsRepository parkingBookingRecordsRepository;
-
     public List<BookingVehicles> getAllBookingVehicles() {
         return bookingVehiclesRepository.findAll();
     }
@@ -66,7 +60,6 @@ public class BookingVehiclesService {
     }
 
     public List<BookingVehicles> getAllBookingVehicles(Long bookingId) {
-
        Optional<ParkingBookingRecords> parkingBookingRecords= parkingBookingRecordsRepository.findById(bookingId);
         return bookingVehiclesRepository.findBookingVehiclesByParkingBookingRecordsOrderByIdDesc(parkingBookingRecords.get());
     }
@@ -79,22 +72,25 @@ public class BookingVehiclesService {
         ParkingBookingRecords parkingBookingRecords = parkingBookingRecordsRepository.findById(parkingCheckInRequest.getBookingId())
                 .orElseThrow(() -> new ResourceNotFoundException("Booking", "id", parkingCheckInRequest.getBookingId()));
 
-        Date currentDateTime = new Date();
-        boolean isCheckInCodeValid = false;
-        boolean isUserIdMatched = false;
-        boolean isParkFromDateBeforeCurrent = false;
-        boolean isParkToDateAfterCurrent = false;
-        boolean isBookingNotExpired = false;
+
+        boolean isCheckInCodeValid;
+        boolean isUserIdMatched;
+        boolean isBookingNotExpired;
+        boolean isCheckInDateValid = false;
 
         try{
-
-
              isCheckInCodeValid = parking.getCheckInCode().equals(parkingCheckInRequest.getCheckInCode());
              isUserIdMatched = parkingBookingRecords.getCustomer().getId() == parkingCheckInRequest.getUserId();
-//             isParkFromDateBeforeCurrent = parkingBookingRecords.getParkFromDate().before(currentDateTime);
-             isParkToDateAfterCurrent = parkingBookingRecords.getParkToDate().after(currentDateTime);
              isBookingNotExpired = !(parkingBookingRecords.getIsExpired() == null ? false: parkingBookingRecords.getIsExpired());
 
+          List<BookingDates> bookingDates=  bookingDatesRespository.findByParkingBookingId(parkingCheckInRequest.getBookingId());
+
+          for (BookingDates bookingDate : bookingDates){
+              if(bookingDate.getBookingDate().equals(new Date())){
+                    isCheckInDateValid = true;
+                    break;
+              }
+          }
         }
 
         catch (Exception e){
@@ -102,7 +98,7 @@ public class BookingVehiclesService {
             return ResponseEntity.internalServerError().build();
         }
 
-        if (isCheckInCodeValid && isUserIdMatched  && isParkToDateAfterCurrent && isBookingNotExpired) {
+        if (isCheckInCodeValid && isUserIdMatched  && isBookingNotExpired && isCheckInDateValid) {
 
             BookingVehicles bookingVehicles = new BookingVehicles();
             bookingVehicles.setCheckIn(new Date());
@@ -111,6 +107,8 @@ public class BookingVehiclesService {
 
             bookingVehicles.setCheckInInput(parkingCheckInRequest.getCheckInCode());
             bookingVehicles.setCustomerId(parkingCheckInRequest.getUserId());
+            bookingVehiclesRepository.save(bookingVehicles);
+
 
             try {
                 String url = "http://localhost:8000/video_feed";
@@ -130,9 +128,6 @@ public class BookingVehiclesService {
             }
             catch (Exception e){
                 System.out.println("Error in video feed");
-
-
-                bookingVehiclesRepository.save(bookingVehicles);
             }
 
 

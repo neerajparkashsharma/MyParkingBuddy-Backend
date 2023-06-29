@@ -29,8 +29,6 @@ public class Chat {
 
     @Column(name = "sender_id")
     private Long senderId;
-
-
     @Column(name = "booking_id")
     private Long bookingId;
 

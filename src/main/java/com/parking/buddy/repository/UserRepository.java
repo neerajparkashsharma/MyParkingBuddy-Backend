@@ -1,15 +1,19 @@
 package com.parking.buddy.repository;
 
+import com.parking.buddy.entity.Role;
 import com.parking.buddy.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
     User findByEmailAddress(String email);
     User findByPhoneNumber(String phoneNumber);
+
+    List<User> findByRole(Role role);
     // save user
     User save(User user);
     // delete user by id
@@ -25,4 +29,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findByIsActiveNot(boolean isActive);
     List<User> findByLocationDistanceNot(double distance);
 
+    Long countByCreatedDateBetween(Date atStartOfDay, Date atStartOfDay1);
 }
