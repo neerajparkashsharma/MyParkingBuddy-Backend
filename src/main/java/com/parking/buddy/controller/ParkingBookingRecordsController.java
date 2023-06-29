@@ -3,10 +3,8 @@ package com.parking.buddy.controller;
 import com.parking.buddy.entity.*;
 import com.parking.buddy.entity.DTO.ParkingBookingRequest;
 import com.parking.buddy.entity.DTO.parkingBookingDTO;
-import com.parking.buddy.repository.ParkingBookingRecordsRepository;
-import com.parking.buddy.repository.ParkingRecordsRepository;
-import com.parking.buddy.repository.ParkingRepository;
-import com.parking.buddy.repository.UserRepository;
+import com.parking.buddy.entity.response.ParkingBookingsList;
+import com.parking.buddy.repository.*;
 import com.parking.buddy.service.ParkingBookingRecordsService;
 import com.parking.buddy.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +38,8 @@ public class ParkingBookingRecordsController {
     private ParkingRecordsRepository parkingRecordsRepository;
     @Autowired
     private ParkingBookingRecordsRepository parkingBookingRecordsRepository;
+    @Autowired
+    private BookingDatesRespository bookingDatesRespository;
 
     @GetMapping("/parkingBookingRecords")
     private List<ParkingBookingRecords> getAllParkingBookingRecords() {
@@ -52,23 +52,40 @@ public class ParkingBookingRecordsController {
     }
 
     @GetMapping("/parkingBookingRecords/customer/{id}")
-    private List<ParkingBookingRecords> getParkingBookingRecordsByCustomerId(@PathVariable Long id) {
+    private List<ParkingBookingsList> getParkingBookingRecordsByCustomerId(@PathVariable Long id) {
         User u = userService.getUserById(id);
+
+        List<ParkingBookingsList> bookingsList =  new ArrayList<>();
+
+
         List<ParkingBookingRecords> bookingRecords = u.getBookingRecords();
 
+        for(ParkingBookingRecords bookingRecord : bookingRecords) {
+
+            ParkingBookingsList booking = new ParkingBookingsList();
+            booking.setParkingBookingRecords(bookingRecord);
+
+           List<BookingDates> bookingDates = bookingDatesRespository.findByParkingBookingId(bookingRecord.getId());
+            booking.setBookingDates(bookingDates);
+
+            bookingsList.add(booking);
+
+        }
+
+
         // Sort the bookingRecords by createdOn in descending order
-        bookingRecords.sort((r1, r2) -> {
-            if (r1.getCreatedDate() == null && r2.getCreatedDate() == null) {
+        bookingsList.sort((r1, r2) -> {
+            if (r1.parkingBookingRecords.getCreatedDate() == null && r2.parkingBookingRecords.getCreatedDate() == null) {
                 return 0;
-            } else if (r1.getCreatedDate() == null) {
+            } else if (r1.parkingBookingRecords.getCreatedDate() == null) {
                 return 1;
-            } else if (r2.getCreatedDate() == null) {
+            } else if (r2.parkingBookingRecords.getCreatedDate() == null) {
                 return -1;
             }
-            return r2.getCreatedDate().compareTo(r1.getCreatedDate());
+            return r2.parkingBookingRecords.getCreatedDate().compareTo(r1.parkingBookingRecords.getCreatedDate());
         });
 
-        return bookingRecords;
+        return bookingsList;
     }
 
 
@@ -146,6 +163,10 @@ public class ParkingBookingRecordsController {
         return parkingBookingRecordsService.bookParking(booking);
     }
 
+    @GetMapping("/parking_dates_occupied/{parkingId}")
+    public List<BookingDates> getParkingDatesOccupied(@PathVariable Long parkingId) {
+        return parkingBookingRecordsService.getUnavailableDatesForParking(parkingId);
+    }
 
     @PostMapping("/parkingBookingRecords")
     private String saveParkingBookingRecords(@RequestBody parkingBookingDTO p) {
@@ -223,9 +244,6 @@ public class ParkingBookingRecordsController {
 
     @GetMapping("/parking/bookings/{id}")
     public ResponseEntity<?> getBookingsByParkingId(@PathVariable Long id) {
-
-
-
 
         return parkingBookingRecordsService.getBookingsByParkingId(id);
     }

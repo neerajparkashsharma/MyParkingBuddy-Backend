@@ -1,9 +1,11 @@
 package com.parking.buddy.service;
 
 import com.parking.buddy.entity.BookingVehicles;
+import com.parking.buddy.entity.DetectionImages;
 import com.parking.buddy.entity.Parking;
 import com.parking.buddy.entity.ParkingBookingRecords;
 import com.parking.buddy.entity.request.ParkingCheckInRequest;
+import com.parking.buddy.entity.request.ParkingCheckOutRequest;
 import com.parking.buddy.exception.ResourceAlreadyExistsException;
 import com.parking.buddy.exception.ResourceNotFoundException;
 import com.parking.buddy.repository.BookingVehiclesRepository;
@@ -16,9 +18,16 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -30,6 +39,7 @@ public class BookingVehiclesService {
     private BookingVehiclesRepository bookingVehiclesRepository;
     @Autowired
     private ParkingRepository parkingRepository;
+
 
     @Autowired
     private ParkingBookingRecordsRepository parkingBookingRecordsRepository;
@@ -55,6 +65,12 @@ public class BookingVehiclesService {
         }
     }
 
+    public List<BookingVehicles> getAllBookingVehicles(Long bookingId) {
+
+       Optional<ParkingBookingRecords> parkingBookingRecords= parkingBookingRecordsRepository.findById(bookingId);
+        return bookingVehiclesRepository.findBookingVehiclesByParkingBookingRecordsOrderByIdDesc(parkingBookingRecords.get());
+    }
+
 
     public ResponseEntity<?> markCheckIn(ParkingCheckInRequest parkingCheckInRequest) {
         Parking parking = parkingRepository.findById(parkingCheckInRequest.getParkingId())
@@ -64,28 +80,61 @@ public class BookingVehiclesService {
                 .orElseThrow(() -> new ResourceNotFoundException("Booking", "id", parkingCheckInRequest.getBookingId()));
 
         Date currentDateTime = new Date();
+        boolean isCheckInCodeValid = false;
+        boolean isUserIdMatched = false;
+        boolean isParkFromDateBeforeCurrent = false;
+        boolean isParkToDateAfterCurrent = false;
+        boolean isBookingNotExpired = false;
 
-        if (parking.getCheckInCode().equals(parkingCheckInRequest.getCheckInCode()) &&
-                parkingBookingRecords.getCustomer().getId()==(parkingCheckInRequest.getUserId()) &&
-                parkingBookingRecords.getParkFromDate().before(currentDateTime) &&
-                parkingBookingRecords.getParkToDate().after(currentDateTime) &&
-                !parkingBookingRecords.getIsExpired()) {
+        try{
 
-            String url = "http://localhost:8000/video_feed";
-            String requestData = "user_id=" + parkingCheckInRequest.getUserId() + "&parking_id=" + parkingCheckInRequest.getParkingId();
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+             isCheckInCodeValid = parking.getCheckInCode().equals(parkingCheckInRequest.getCheckInCode());
+             isUserIdMatched = parkingBookingRecords.getCustomer().getId() == parkingCheckInRequest.getUserId();
+//             isParkFromDateBeforeCurrent = parkingBookingRecords.getParkFromDate().before(currentDateTime);
+             isParkToDateAfterCurrent = parkingBookingRecords.getParkToDate().after(currentDateTime);
+             isBookingNotExpired = !(parkingBookingRecords.getIsExpired() == null ? false: parkingBookingRecords.getIsExpired());
 
-            RestTemplate restTemplate = new RestTemplate();
-            ResponseEntity<StreamingResponseBody> response = restTemplate.getForEntity(url + "?" + requestData, StreamingResponseBody.class);
+        }
 
+        catch (Exception e){
+            System.out.println("Error in checkin");
+            return ResponseEntity.internalServerError().build();
+        }
+
+        if (isCheckInCodeValid && isUserIdMatched  && isParkToDateAfterCurrent && isBookingNotExpired) {
 
             BookingVehicles bookingVehicles = new BookingVehicles();
             bookingVehicles.setCheckIn(new Date());
             bookingVehicles.setParkingBookingRecords(parkingBookingRecords);
             bookingVehicles.setAllowed(true);
+
             bookingVehicles.setCheckInInput(parkingCheckInRequest.getCheckInCode());
+            bookingVehicles.setCustomerId(parkingCheckInRequest.getUserId());
+
+            try {
+                String url = "http://localhost:8000/video_feed";
+                String requestData = "user_id=" + parkingCheckInRequest.getUserId() + "&parking_id=" + parkingCheckInRequest.getParkingId();
+
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+                RestTemplate restTemplate = new RestTemplate();
+                ResponseEntity<StreamingResponseBody> response = restTemplate.getForEntity(url + "?" + requestData, StreamingResponseBody.class);
+
+                if (response.getStatusCode().is2xxSuccessful()) {
+                    System.out.println("Video feed started");
+                } else {
+                    System.out.println("Video feed failed");
+                }
+            }
+            catch (Exception e){
+                System.out.println("Error in video feed");
+
+
+                bookingVehiclesRepository.save(bookingVehicles);
+            }
+
 
             // Return a success response with the created BookingVehicles object
             return ResponseEntity.ok(bookingVehicles);
@@ -94,41 +143,69 @@ public class BookingVehiclesService {
             return ResponseEntity.notFound().build();
         }
     }
+    public ResponseEntity<?> markCheckOut(ParkingCheckOutRequest parkingCheckOutRequest) {
+        Long userId = parkingCheckOutRequest.getUserId();
+        String checkOutCode = parkingCheckOutRequest.getCheckOutCode();
 
+       Optional<ParkingBookingRecords> parkingBookingRecord= parkingBookingRecordsRepository.findById(parkingCheckOutRequest.getBookingId());
 
+        // Find the last check-in for the user
+        BookingVehicles lastCheckIn = bookingVehiclesRepository.findFirstByCustomerIdAndParkingBookingRecordsAndCheckOutIsNullOrderByCheckInDesc(userId, parkingBookingRecord.get());
 
+        if (lastCheckIn != null) {
+            ParkingBookingRecords parkingBookingRecords = lastCheckIn.getParkingBookingRecords();
+            Parking parking = parkingBookingRecords.getParking();
 
-    public ResponseEntity<?> markCheckOut(Long parkingId, Long userId, String checkOutCode, Long bookingId) {
-        Parking parking = parkingRepository.findById(parkingId)
-                .orElseThrow(() -> new ResourceNotFoundException("Parking", "id", parkingId));
+            if (parking.getCheckOutCode().equals(checkOutCode)) {
+                lastCheckIn.setCheckOut(new Date());
+                lastCheckIn.setCheckOutInput(checkOutCode);
+                bookingVehiclesRepository.save(lastCheckIn);
 
-        ParkingBookingRecords parkingBookingRecords = parkingBookingRecordsRepository.findById(bookingId)
-                .orElseThrow(() -> new ResourceNotFoundException("Booking", "id", bookingId));
-
-
-
-        Date currentDateTime = new Date();
-
-        if (parking.getCheckOutCode().equals(checkOutCode) &&
-                parkingBookingRecords.getCustomer().getId()==(userId) &&
-                parkingBookingRecords.getParkFromDate().before(currentDateTime) &&
-                parkingBookingRecords.getParkToDate().after(currentDateTime) &&
-                !parkingBookingRecords.getIsExpired()) {
-
-            BookingVehicles bookingVehicles = new BookingVehicles();
-
-            bookingVehicles.setParkingBookingRecords(parkingBookingRecords);
-            bookingVehicles.setAllowed(true);
-            bookingVehicles.setCheckOut(new Date());
-            bookingVehicles.setCheckOutInput(checkOutCode);
-
-            // Return a success response with the created BookingVehicles object
-            return ResponseEntity.ok(bookingVehicles);
-        } else {
-            // Return an error response with the appropriate status code and message
-            return ResponseEntity.notFound().build();
+                return ResponseEntity.ok(lastCheckIn);
+            }
         }
+
+        return ResponseEntity.notFound().build();
     }
+
+
+
+
+
+
+//    public ResponseEntity<?> markCheckOut(Long parkingId, Long userId, String checkOutCode, Long bookingId) {
+//        Parking parking = parkingRepository.findById(parkingId)
+//                .orElseThrow(() -> new ResourceNotFoundException("Parking", "id", parkingId));
+//
+//        ParkingBookingRecords parkingBookingRecords = parkingBookingRecordsRepository.findById(bookingId)
+//                .orElseThrow(() -> new ResourceNotFoundException("Booking", "id", bookingId));
+//
+//
+//
+//        Date currentDateTime = new Date();
+//
+//        if (parking.getCheckOutCode().equals(checkOutCode) &&
+//                parkingBookingRecords.getCustomer().getId()==(userId) &&
+//                parkingBookingRecords.getParkFromDate().before(currentDateTime) &&
+//                parkingBookingRecords.getParkToDate().after(currentDateTime) &&
+//                !parkingBookingRecords.getIsExpired()) {
+//
+//            BookingVehicles bookingVehicles = new BookingVehicles();
+//
+//            bookingVehicles.setParkingBookingRecords(parkingBookingRecords);
+//            bookingVehicles.setAllowed(true);
+//            bookingVehicles.setCheckOut(new Date());
+//            bookingVehicles.setCheckOutInput(checkOutCode);
+//
+//            // Return a success response with the created BookingVehicles object
+//            return ResponseEntity.ok(bookingVehicles);
+//        } else {
+//            // Return an error response with the appropriate status code and message
+//            return ResponseEntity.notFound().build();
+//        }
+//    }
+
+
 
 
 //    public void checkIn(BookingVehicles booking, parkingId) {

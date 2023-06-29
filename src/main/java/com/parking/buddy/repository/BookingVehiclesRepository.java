@@ -26,4 +26,8 @@ public interface BookingVehiclesRepository  extends JpaRepository<BookingVehicle
     List<BookingVehicles> findByParkingBookingRecordsParkFromDateBeforeAndCheckOutIsNull(Date date);
 
 
+    List<BookingVehicles> findBookingVehiclesByParkingBookingRecordsOrderByIdDesc(ParkingBookingRecords parkingBookingRecords);
+    BookingVehicles findFirstByCustomerIdAndParkingBookingRecordsAndCheckOutIsNullOrderByCheckInDesc(Long customerId, ParkingBookingRecords parkingBookingRecords);
+
+    List<BookingVehicles> findBookingVehiclesByParkingBookingRecords(ParkingBookingRecords parkingBookingRecords);
 }

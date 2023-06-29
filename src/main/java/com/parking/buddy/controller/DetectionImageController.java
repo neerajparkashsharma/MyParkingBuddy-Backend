@@ -5,10 +5,7 @@ import com.parking.buddy.entity.DetectionImages;
 import com.parking.buddy.repository.DetectionImagesRepository;
 import com.parking.buddy.service.DetectionImagesService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -69,6 +66,12 @@ public class DetectionImageController {
         return base64Images;
     }
 
+    @GetMapping("/get-images/")
+    public List<DetectionImages> getImages( @RequestParam("userId") Long userId) {
+        List<DetectionImages> images = imageRepository.findByUserId(     userId);
+
+        return images;
+    }
 
 
     public byte[] compressImage(byte[] imageData) throws IOException {

@@ -1,6 +1,7 @@
 package com.parking.buddy.entity.DTO;
 
 import lombok.Data;
+import  java.util.List;
 
 @Data
 public class ParkingBookingRequest
@@ -11,6 +12,7 @@ public class ParkingBookingRequest
     public String bookingFromDateTime;
     public String bookingToDateTime;
 
+    public List<String>  bookingDates;
 
 
 }

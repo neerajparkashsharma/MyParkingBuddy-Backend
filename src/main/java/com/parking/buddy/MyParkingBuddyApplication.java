@@ -20,7 +20,7 @@ import java.sql.*;
 @SpringBootApplication
 //@EnableSwagger2
 //@EnableWebMvc
-@EnableScheduling
+//@EnableScheduling
 
 public class MyParkingBuddyApplication {
 

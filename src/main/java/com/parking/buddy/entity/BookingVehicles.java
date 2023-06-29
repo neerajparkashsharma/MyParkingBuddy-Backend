@@ -12,11 +12,12 @@ public class BookingVehicles {
     private Long id;
 
     @ManyToOne(cascade = CascadeType.REMOVE)
-
     @JoinColumn(name="booking_id")
-
     private ParkingBookingRecords parkingBookingRecords;
 
+
+    @Column(name="customer_id")
+    private Long customerId;
 
     @ManyToOne
     @JoinColumn(name = "vehicle_id")
@@ -104,13 +105,21 @@ public class BookingVehicles {
         this.checkOutInput = checkOutInput;
     }
 
+    public Long getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerId(Long customerId) {
+        this.customerId = customerId;
+    }
 
     public BookingVehicles() {
     }
 
-    public BookingVehicles(Long id, ParkingBookingRecords parkingBookingRecords, Vehicle vehicle, Boolean isAllowed, Date checkIn, Date checkOut, String checkInInput, String checkOutInput) {
+    public BookingVehicles(Long id, ParkingBookingRecords parkingBookingRecords, Long customerId, Vehicle vehicle, Boolean isAllowed, Date checkIn, Date checkOut, String checkInInput, String checkOutInput) {
         this.id = id;
         this.parkingBookingRecords = parkingBookingRecords;
+        this.customerId = customerId;
         this.vehicle = vehicle;
         this.isAllowed = isAllowed;
         this.checkIn = checkIn;
