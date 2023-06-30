@@ -169,8 +169,6 @@ public class DashboardService {
 
         dashboardCounts.setTotalParkingSpacesAvailableToday(Long.parseLong(String.valueOf(availableParkingCount)));
 
-
-
         Map<String, Map<String, Integer>> yearlyCounts = new TreeMap<>();
         int currentYear = LocalDate.now().getYear();
         int numYears = 5;
@@ -191,26 +189,52 @@ public class DashboardService {
         }
 
         List<ChartData> chartDataList = new ArrayList<>();
+
         for (Map.Entry<String, Map<String, Integer>> entry : yearlyCounts.entrySet()) {
             String year = entry.getKey();
             Map<String, Integer> categoryCounts = entry.getValue();
-            List<DataPoint> dataPoints = new ArrayList<>();
 
             for (Map.Entry<String, Integer> categoryEntry : categoryCounts.entrySet()) {
                 String category = categoryEntry.getKey();
                 int count = categoryEntry.getValue();
-                dataPoints.add(new DataPoint(category, count));
+
+                List<DataPoint> dataPoints = new ArrayList<>();
+                dataPoints.add(new DataPoint(year, count));
+
+                ChartData chartData = new ChartData(category, dataPoints);
+                chartDataList.add(chartData);
             }
-
-            chartDataList.add(new ChartData(year, dataPoints));
         }
-        dashboardCounts.setChartData(chartDataList);
 
 
+        Map<String, List<DataPoint>> categoryDataMap = new HashMap<>();
+
+        for (ChartData chartData : chartDataList) {
+            String category = chartData.getId();
+            List<DataPoint> dataPoints = chartData.getData();
+
+            if (categoryDataMap.containsKey(category)) {
+                categoryDataMap.get(category).addAll(dataPoints);
+            } else {
+                categoryDataMap.put(category, new ArrayList<>(dataPoints));
+            }
+        }
+
+        List<ChartData> groupedChartData = new ArrayList<>();
+
+        for (Map.Entry<String, List<DataPoint>> entry : categoryDataMap.entrySet()) {
+            String category = entry.getKey();
+            List<DataPoint> dataPoints = entry.getValue();
+
+            ChartData chartData = new ChartData(category, dataPoints);
+            groupedChartData.add(chartData);
+        }
+
+// Set the groupedChartData to the dashboardCounts
+        dashboardCounts.setChartData(groupedChartData);
 
 
-
-    return dashboardCounts;
+        return dashboardCounts;
     }
     private int calculateYearlyCountForCategory(int year, String category) {
 

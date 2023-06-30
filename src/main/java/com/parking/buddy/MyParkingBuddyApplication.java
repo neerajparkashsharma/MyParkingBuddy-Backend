@@ -18,8 +18,7 @@ import java.io.IOException;
 import java.sql.*;
 
 @SpringBootApplication
-//@EnableSwagger2
-//@EnableWebMvc
+@EnableWebMvc
 @EnableScheduling
 
 public class MyParkingBuddyApplication {

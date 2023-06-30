@@ -8,21 +8,15 @@ import com.parking.buddy.repository.*;
 import com.parking.buddy.service.ParkingBookingRecordsService;
 import com.parking.buddy.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.Time;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.*;
 
 @RestController
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class ParkingBookingRecordsController {
     @Autowired
     private ParkingBookingRecordsService parkingBookingRecordsService;
@@ -66,6 +60,44 @@ public class ParkingBookingRecordsController {
             booking.setParkingBookingRecords(bookingRecord);
 
            List<BookingDates> bookingDates = bookingDatesRespository.findByParkingBookingId(bookingRecord.getId());
+            booking.setBookingDates(bookingDates);
+
+            bookingsList.add(booking);
+
+        }
+
+
+        // Sort the bookingRecords by createdOn in descending order
+        bookingsList.sort((r1, r2) -> {
+            if (r1.parkingBookingRecords.getCreatedDate() == null && r2.parkingBookingRecords.getCreatedDate() == null) {
+                return 0;
+            } else if (r1.parkingBookingRecords.getCreatedDate() == null) {
+                return 1;
+            } else if (r2.parkingBookingRecords.getCreatedDate() == null) {
+                return -1;
+            }
+            return r2.parkingBookingRecords.getCreatedDate().compareTo(r1.parkingBookingRecords.getCreatedDate());
+        });
+
+        return bookingsList;
+    }
+
+
+    @GetMapping("/bookings")
+    private List<ParkingBookingsList> getBookings() {
+
+
+        List<ParkingBookingsList> bookingsList =  new ArrayList<>();
+
+
+        List<ParkingBookingRecords> bookingRecords = parkingBookingRecordsRepository.findAll();
+
+        for(ParkingBookingRecords bookingRecord : bookingRecords) {
+
+            ParkingBookingsList booking = new ParkingBookingsList();
+            booking.setParkingBookingRecords(bookingRecord);
+
+            List<BookingDates> bookingDates = bookingDatesRespository.findByParkingBookingId(bookingRecord.getId());
             booking.setBookingDates(bookingDates);
 
             bookingsList.add(booking);

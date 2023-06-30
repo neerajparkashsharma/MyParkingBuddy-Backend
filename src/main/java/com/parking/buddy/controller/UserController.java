@@ -14,6 +14,7 @@ import javax.ws.rs.core.Response;
 import java.util.*;
 
 @RestController
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class UserController {
 
 

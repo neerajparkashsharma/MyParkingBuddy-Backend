@@ -13,6 +13,7 @@ public class ChartData
 {
     private String id;
 
+
     private List<DataPoint> data;
 
 }
