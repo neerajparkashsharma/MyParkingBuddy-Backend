@@ -13,7 +13,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 
@@ -58,19 +57,22 @@ public class DetectionImageController {
     public List<String> getAllImages() {
         List<DetectionImages> images = imageRepository.findAll();
         List<String> base64Images = new ArrayList<>();
-
         for (DetectionImages image : images) {
             base64Images.add(image.getImage());
         }
-
         return base64Images;
     }
 
     @GetMapping("/get-images/")
     public List<DetectionImages> getImages( @RequestParam("userId") Long userId) {
-        List<DetectionImages> images = imageRepository.findByUserId(     userId);
+        List<DetectionImages> images = imageRepository.findByUserId(userId);
 
         return images;
+    }
+
+    @GetMapping("/all_detections")
+    public List<DetectionImages> getAllDetections() {
+        return  imageRepository.findAll();
     }
 
 

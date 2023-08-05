@@ -36,5 +36,7 @@ public class CardDetailsService {
     }
 
 
-
+    public List<CardDetails> getCardByUserId(Long userId) {
+        return cardDetailsRepository.findByUserId(userId);
+    }
 }

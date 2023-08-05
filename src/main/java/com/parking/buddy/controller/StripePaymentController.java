@@ -1,6 +1,8 @@
 package com.parking.buddy.controller;
 
+import com.parking.buddy.entity.CardDetails;
 import com.parking.buddy.entity.request.PaymentRequest;
+import com.parking.buddy.service.CardDetailsService;
 import com.parking.buddy.service.StripeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +14,9 @@ public class StripePaymentController {
 
     @Autowired
     private StripeService stripeService;
+
+    @Autowired
+    private CardDetailsService cardDetailsService;
 
     @PostMapping("/add")
     public ResponseEntity<?> addCard(
@@ -41,5 +46,10 @@ public class StripePaymentController {
             @RequestParam String customerId) {
 
         return stripeService.makePayment(paymentMethodId, customerId, amount);
+    }
+
+    @PostMapping("/CardDetails/")
+    public CardDetails createCardDetails(@RequestBody  CardDetails cardDetails ){
+        return  cardDetailsService.createCard(cardDetails);
     }
 }

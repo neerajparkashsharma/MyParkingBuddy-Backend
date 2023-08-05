@@ -3,10 +3,7 @@ package com.parking.buddy.controller;
 import com.parking.buddy.entity.CardDetails;
 import com.parking.buddy.service.CardDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 @RestController
@@ -27,4 +24,9 @@ public class CardDetailsController {
     public  CardDetails createCardDetails(@RequestBody  CardDetails cardDetails ){
         return  cardDetailsService.createCard(cardDetails);
     }
+    @GetMapping("/CardDetails/user/{userId}")
+    public  List<CardDetails> getCardDetailsByUserId(@PathVariable  Long userId){
+        return  cardDetailsService.getCardByUserId(userId);
+    }
+
 }

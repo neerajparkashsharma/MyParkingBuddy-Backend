@@ -17,7 +17,7 @@ public class CardDetails {
 
 
     @Column(name = "expiry_date")
-    private Date expiryDate;
+    private String expiryDate;
 
 
     @Column(name = "account_title")
@@ -25,6 +25,7 @@ public class CardDetails {
 
     @Column(name = "amount")
 private Float amount;
+
 
     @Column(name = "cvv")
     private String cvv;
@@ -46,6 +47,11 @@ private Float amount;
     @Column(name = "is_active")
     private Boolean isActive;
 
+
+    @Column(name = "user_id")
+    private Long userId;
+
+
     public Long getId() {
         return id;
     }
@@ -62,11 +68,11 @@ private Float amount;
         this.number = number;
     }
 
-    public Date getExpiryDate() {
+    public String getExpiryDate() {
         return expiryDate;
     }
 
-    public void setExpiryDate(Date expiryDate) {
+    public void setExpiryDate(String expiryDate) {
         this.expiryDate = expiryDate;
     }
 
@@ -134,20 +140,29 @@ private Float amount;
         this.amount = amount;
     }
 
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
     public CardDetails() {
     }
 
-    public CardDetails(Long id, String number, Date expiryDate, String accountTitle, String cvv, Date createDate, Date updatedDate, Long createdBy, Long updatedBy, Boolean isActive,Float amount) {
+    public CardDetails(Long id, String number, String expiryDate, String accountTitle, Float amount, String cvv, Date createDate, Date updatedDate, Long createdBy, Long updatedBy, Boolean isActive, Long userId) {
         this.id = id;
         this.number = number;
         this.expiryDate = expiryDate;
         this.accountTitle = accountTitle;
+        this.amount = amount;
         this.cvv = cvv;
         this.createDate = createDate;
         this.updatedDate = updatedDate;
         this.createdBy = createdBy;
         this.updatedBy = updatedBy;
         this.isActive = isActive;
-        this.amount  = amount;
+        this.userId = userId;
     }
 }

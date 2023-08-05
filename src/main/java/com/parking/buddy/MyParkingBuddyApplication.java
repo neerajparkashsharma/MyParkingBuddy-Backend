@@ -19,7 +19,7 @@ import java.sql.*;
 
 @SpringBootApplication
 @EnableWebMvc
-@EnableScheduling
+//@EnableScheduling
 
 public class MyParkingBuddyApplication {
 
